@@ -12,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
@@ -110,6 +111,20 @@ func initConfig() {
 }
 
 func clientset() *kubernetes.Clientset {
+	if _, err := os.Stat(viper.GetString("kubeconfig")); os.IsNotExist(err) {
+		config, err := rest.InClusterConfig()
+		if err != nil {
+			panic(err.Error())
+		}
+		clientset, err := kubernetes.NewForConfig(config)
+		if err != nil {
+			panic(err.Error())
+		}
+		return clientset
+	} else if err != nil {
+		logrus.Fatalf("%s failed to check kubeconfig location", err)
+	}
+
 	config, err := clientcmd.BuildConfigFromFlags("", viper.GetString("kubeconfig"))
 	if err != nil {
 		panic(err.Error())
@@ -119,6 +134,7 @@ func clientset() *kubernetes.Clientset {
 		panic(err.Error())
 	}
 	return clientset
+
 }
 
 func secretInformer() {
