@@ -2,6 +2,7 @@
 
 Automatically trigger a new rollout for `Deployment`, `StatefulSet` and `DaemonSet`
 upon ConfigMap or Secret changes.
+
 Usage
 1. Label Secret or ConfigMap with label `label-foo: bar`
 2. Label K8s Workload with label `label-foo: bar` 
